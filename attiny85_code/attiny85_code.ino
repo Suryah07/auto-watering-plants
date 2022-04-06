@@ -3,7 +3,31 @@
 #include <SoftwareSerial.h>
 
 
+//pinouts
+#define relay 2
+#define light 3
+
+
 RTC_DS1307 rtc;
+
+
+void alert_no_connection()
+{
+  while(true)
+  {
+    digitalWrite(light,HIGH);
+  }
+}
+void alert_light()
+{
+  while(true)
+  {
+    digitalWrite(light,HIGH);
+    delay(200);
+    digitalWrite(light,LOW);
+    delay(200);
+  }  
+}
 
 bool wateringtime(DateTime now)
 {
@@ -15,20 +39,23 @@ bool wateringtime(DateTime now)
 
 void setup () 
 {
-  
+  pinMode(relay,OUTPUT);
+  pinMode(light,OUTPUT);
 
+  
   if (! rtc.begin()) {
     //Serial.println("Couldn't find RTC");
-    while (1);
+    alert_no_connection();
+    
   }
-
+  
   if (!rtc.isrunning()) {
     //Serial.println("RTC lost power, lets set the time!");
+    alert_light();
   
-  // Comment out below lines once you set the date & time.
+    // Comment out below lines once you set the date & time.
     // Following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  
+    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     // Following line sets the RTC with an explicit date & time
     // for example to set January 27 2017 at 12:56 you would call:
     // rtc.adjust(DateTime(2017, 1, 27, 12, 56, 0));
