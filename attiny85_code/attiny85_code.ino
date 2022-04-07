@@ -1,3 +1,7 @@
+//Upload this into attiny85
+//This code helps microcontroller to check time and water the plants accordingly
+
+
 #include <Wire.h>
 #include "RTClib.h"
 #include <SoftwareSerial.h>
@@ -7,9 +11,14 @@
 #define relay 2
 #define light 3
 
+#define watertime 600 //time of motor to be on in seconds...
+
+
+int hourarr[] = {11,12,14,15};
+int minutearr[] = {01,20};
+int arrlength = sizeof(hourarr)/sizeof(int);
 
 RTC_DS1307 rtc;
-
 
 void alert_no_connection()
 {
@@ -31,10 +40,14 @@ void alert_light()
 
 bool wateringtime(DateTime now)
 {
-  if(now.hour()==12 and now.minute()>=01 and now.minute()<=15)
+  for(int i=0;i<arrlength;i++)
   {
-    return true;
+    if(now.hour() == hourarr[i] and now.minute()>=01 and now.minute()<=9)
+    {
+      return true;      
+    }
   }
+  return false;
 }
 
 void setup () 
@@ -65,47 +78,11 @@ void setup ()
 void loop () 
 {
     DateTime now = rtc.now();
-    /*
-    Serial.println("Current Date & Time: ");
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(" (");
-    Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
-    Serial.print(") ");
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    
-    Serial.println("Unix Time: ");
-    Serial.print("elapsed ");
-    Serial.print(now.unixtime());
-    Serial.print(" seconds/");
-    Serial.print(now.unixtime() / 86400L);
-    Serial.println(" days since 1/1/1970");
-    
-    // calculate a date which is 7 days & 30 seconds into the future
-    DateTime future (now + TimeSpan(7,0,0,30));
-    
-    Serial.println("Future Date & Time (Now + 7days & 30s): ");
-    Serial.print(future.year(), DEC);
-    Serial.print('/');
-    Serial.print(future.month(), DEC);
-    Serial.print('/');
-    Serial.print(future.day(), DEC);
-    Serial.print(' ');
-    Serial.print(future.hour(), DEC);
-    Serial.print(':');
-    Serial.print(future.minute(), DEC);
-    Serial.print(':');
-    Serial.print(future.second(), DEC);
-    Serial.println();
-    
-    Serial.println();*/
-    delay(1000);
+    if(wateringtime(now))
+    {
+      digitalWrite(relay,HIGH);
+      delay(watertime);
+      digitalWrite(relay,LOW);
+    }
+    //delay(1000);
 }
