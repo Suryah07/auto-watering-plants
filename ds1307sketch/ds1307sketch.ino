@@ -1,80 +1,43 @@
-//This sketch is to write time into real time clock using arduino
-//As attiny cant be programmed to set date and time as it can be restarted so setting time must be done using other device
+//This code is to use with DS1302 RTC module, it permits you to setup the actual time and date
+//And you can visualize them on the serial monitor
+//This code is a modified version of the code provided in virtuabotixRTC library
+//Refer to https://Surtrtech.com for more information
 
-#include <Wire.h>
-#include "RTClib.h"
+#include <virtuabotixRTC.h> //Library used
 
-RTC_DS1307 rtc;
+//Wiring SCLK -> 6, I/O -> 7, CE -> 8
+//Or CLK -> 6 , DAT -> 7, Reset -> 8
 
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+virtuabotixRTC myRTC(6, 7, 8); //If you change the wiring change the pins here also
 
-void setup () 
-{
-  Serial.begin(9600);
-  delay(3000); // wait for console opening
+void setup() {
+ Serial.begin(9600);
 
-  if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    while (1);
-  }
-
-  if (!rtc.isrunning()) {
-    Serial.println("RTC lost power, lets set the time!");
-  
-  // Comment out below lines once you set the date & time.
-    // Following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  
-    // Following line sets the RTC with an explicit date & time
-    // for example to set January 27 2017 at 12:56 you would call:
-    // rtc.adjust(DateTime(2017, 1, 27, 12, 56, 0));
-  }
+// Set the current date, and time in the following format:
+ // seconds, minutes, hours, day of the week, day of the month, month, year
+ myRTC.setDS1302Time(00, 05, 20, 1, 12, 04, 2022); //Here you write your actual time/date as shown above 
+ //but remember to "comment/remove" this function once you're done
+ //The setup is done only one time and the module will continue counting it automatically
 }
 
-void loop () 
-{
-    DateTime now = rtc.now();
-    
-    Serial.println("Current Date & Time: ");
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(" (");
-    Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
-    Serial.print(") ");
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    
-    Serial.println("Unix Time: ");
-    Serial.print("elapsed ");
-    Serial.print(now.unixtime());
-    Serial.print(" seconds/");
-    Serial.print(now.unixtime() / 86400L);
-    Serial.println(" days since 1/1/1970");
-    
-    // calculate a date which is 7 days & 30 seconds into the future
-    DateTime future (now + TimeSpan(7,0,0,30));
-    
-    Serial.println("Future Date & Time (Now + 7days & 30s): ");
-    Serial.print(future.year(), DEC);
-    Serial.print('/');
-    Serial.print(future.month(), DEC);
-    Serial.print('/');
-    Serial.print(future.day(), DEC);
-    Serial.print(' ');
-    Serial.print(future.hour(), DEC);
-    Serial.print(':');
-    Serial.print(future.minute(), DEC);
-    Serial.print(':');
-    Serial.print(future.second(), DEC);
-    Serial.println();
-    
-    Serial.println();
-    delay(1000);
+void loop() {
+ // This allows for the update of variables for time or accessing the individual elements.
+ myRTC.updateTime();
+
+// Start printing elements as individuals
+ Serial.print("Current Date / Time: ");
+ Serial.print(myRTC.dayofmonth); //You can switch between day and month if you're using American system
+ Serial.print("/");
+ Serial.print(myRTC.month);
+ Serial.print("/");
+ Serial.print(myRTC.year);
+ Serial.print(" ");
+ Serial.print(myRTC.hours);
+ Serial.print(":");
+ Serial.print(myRTC.minutes);
+ Serial.print(":");
+ Serial.println(myRTC.seconds);
+
+// Delay so the program doesn't print non-stop
+ delay(1000);
 }
