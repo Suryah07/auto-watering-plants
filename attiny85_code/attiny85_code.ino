@@ -6,30 +6,31 @@
 #include <virtuabotixRTC.h> //Library used
 
 //Wiring SCLK -> 6, I/O -> 7, CE -> 8
-//Or CLK -> 4  , DAT -> 3, Reset -> 1
+//Or CLK -> PB4  , DAT -> PB3, Reset -> PB1
 #define relay PB0
+#define alertlight PB1
 #define watertime 60000 //time of motor to be on in milliseconds...
 
 
 virtuabotixRTC myRTC(PB4, PB3, PB1); //If you change the wiring change the pins here also
 
-int hourarr[] = {11,12,13,14,15,19,20,21};
+int hourarr[] = {11,12,13,14,15,19};
 int arrlength = sizeof(hourarr)/sizeof(int);
 /*
 void alert_no_connection()
 {
   while(true)
   {
-    digitalWrite(light,HIGH);
+    digitalWrite(alertlight,HIGH);
   }
 }
 void alert_light()
 {
   while(true)
   {
-    digitalWrite(light,HIGH);
+    digitalWrite(alertlight,HIGH);
     delay(200);
-    digitalWrite(light,LOW);
+    digitalWrite(alertlight,LOW);
     delay(200);
   }  
 }
@@ -38,7 +39,7 @@ bool wateringtime(virtuabotixRTC tim)
 {
   for(int i=0;i<arrlength;i++)
   {
-    if(tim.hours == hourarr[i] and tim.minutes>=01 and tim.minutes<=25)
+    if(tim.hours == hourarr[i] and (tim.minutes==01 or tim.minutes==02))
     {
       return true;      
     }
@@ -54,11 +55,7 @@ void startwater()
 }
 
 void setup() {
-  //myRTC.setDS1302Time(00, 40, 19, 1, 11, 04, 2022);
   pinMode(relay,OUTPUT);
- // pinMode(light,OUTPUT);
-  
-// Set the current date, and time in the following format:
 // seconds, minutes, hours, day of the week, day of the month, month, year
 //myRTC.setDS1302Time(00, 23, 18, 1, 11, 04, 2022); //Here you write your actual time/date as shown above 
 }
